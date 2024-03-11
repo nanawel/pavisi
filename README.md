@@ -26,6 +26,15 @@ There was no tool for such a job, or at least I could not find one that would fi
 - All your videos need to use the same language. You cannot have one Kaldi-Vosk server running an English
   model while another one is running Spanish.
 
+## Installation
+
+```shell
+git clone <this repo URL> pavisi
+cd pavisi
+composer install
+cp config/app/config.yaml.dist config/app/config.yaml
+```
+
 ## Usage
 
 ```shell
@@ -52,16 +61,18 @@ Options:
 Basically:
 
 - **Prerequisite:** Start enough [Kaldi-Vosk servers](https://alphacephei.com/vosk/server) for you needs, then edit the
-  `app.vosk.instances` section in your [`config.yaml`](./config/app/config.yaml) accordingly.
+  `app.vosk.instances` section in your [`config.yaml`](./config/app/config.yaml.dist) accordingly.
 
 - Run the CLI command `bin/console app:run <folder>`
 - The main process browses the media storage (your `<folder>` above) to find videos
 - If they are not already indexed, it gives each one to the Worker Pool
 - The Worker Pool has a worker for every remote Kaldi-Vosk server previously configured
 - Within the WP, an available worker picks a video, extract the audio track into the right format for Kaldi-Vosk, 
-  then send it to the server over WebSocket for transcrption. The server then returns the transcripted text.
-- At the end of a file, the worker returns the transcripted text to the main process that will index it to
+  then sends it to the server over WebSocket for transcrption. The server then returns the transcripted text.
+- At the end of a file, the worker returns the transcripted text to the main process that indexes it to
   ElasticSearch with some metadata.
+
+You can then query your Elasticsearch to find videos matching your terms!
 
 ![Diagram](./doc/schema.drawio.png)
 
