@@ -23,6 +23,7 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/functions.php'
 
 
     App\Service\ElasticsearchFileIndexer:
