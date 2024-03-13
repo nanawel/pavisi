@@ -16,6 +16,6 @@ parameters:
       websocket_tls_timeout: 1
       websocket_retry: 0
       workers: 2
-    my_kaldivosk_server2:
-      websocket_url: ws://someotherhost:2700/
-      workers: 4
+#    my_kaldivosk_server2:
+#      websocket_url: ws://someotherhost:2700/
+#      workers: 4

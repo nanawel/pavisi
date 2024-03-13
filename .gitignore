@@ -12,4 +12,3 @@
 .idea
 *.bkp
 *.log
-/config/app/config.yaml
