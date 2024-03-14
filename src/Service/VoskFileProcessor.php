@@ -164,7 +164,7 @@ class VoskFileProcessor
             [
                 'results' => $results,
                 'exceptions' => $exceptions,
-                'skipped' => $skippedCnt
+                'skipped_cnt' => $skippedCnt
             ]
         );
 

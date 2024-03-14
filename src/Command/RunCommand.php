@@ -91,6 +91,29 @@ class RunCommand extends Command
             $this->setupProgressBar($output);
         }
 
+        $this->voskFileProcessor->addListener(function (Event $ev) use ($output, $dryRunMode) {
+            if ($ev->name === 'fileprocessor::finishing') {
+                $output->writeln('<info>Run complete.</info>');
+                $output->writeln(sprintf(
+                    '<info>%d file(s) have been processed.</info>',
+                    count($ev->payload['results'])
+                ));
+                $output->writeln(sprintf(
+                    '<info>%d file(s) have been skipped.</info>',
+                    $ev->payload['skipped_cnt']
+                ));
+                if (!empty($ev->payload['exceptions'])) {
+                    $output->writeln(printf(
+                        '<warn>%d error(s) have been encountered.</warn>',
+                        count($ev->payload['exceptions'])
+                    ));
+                }
+                if ($dryRunMode) {
+                    $output->writeln('<warn>DRY-RUN ENABLED. No file has actually been processed.</warn>');
+                }
+            }
+        });
+
         $this->voskFileProcessor->run(
             $finder,
             [
