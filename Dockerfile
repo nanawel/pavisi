@@ -7,4 +7,4 @@ COPY . /app
 
 RUN COMPOSER_ALLOW_SUPERUSER=1 composer install
 
-CMD bin/console
+ENTRYPOINT ["/app/bin/console"]
