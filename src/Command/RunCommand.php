@@ -104,12 +104,12 @@ class RunCommand extends Command
                 ));
                 if (!empty($ev->payload['exceptions'])) {
                     $output->writeln(printf(
-                        '<warn>%d error(s) have been encountered.</warn>',
+                        '<comment>%d error(s) have been encountered.</comment>',
                         count($ev->payload['exceptions'])
                     ));
                 }
                 if ($dryRunMode) {
-                    $output->writeln('<warn>DRY-RUN ENABLED. No file has actually been processed.</warn>');
+                    $output->writeln('<comment>DRY-RUN ENABLED. No file has actually been processed.</comment>');
                 }
             }
         });
