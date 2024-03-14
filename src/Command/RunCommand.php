@@ -183,7 +183,7 @@ class RunCommand extends Command
         $termWidth = (getenv('COLUMNS') ?: self::TERMINAL_DEFAULT_WIDTH);
         $maxLength = min(
             (int) $termWidth * self::PROGRESSBAR_FILENAME_LENGTH_MAX_PCT / 100, // Percent allowed
-            max($termWidth - 32, 15) // Ensure we leave enaough space for the actual progress bar
+            max($termWidth - 32, 15) // Ensure we leave enough space for the actual progress bar
         );
         if (mb_strlen($filepath) > $maxLength) {
             return sprintf('...%s', mb_substr($filepath, -($maxLength + 4)));
