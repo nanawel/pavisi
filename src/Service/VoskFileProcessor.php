@@ -44,7 +44,7 @@ class VoskFileProcessor
         $this->requeuedFiles = new \SplQueue();
     }
 
-    public function run(Finder $finder, array $options = []) {
+    public function run(Finder $finder, array $options = []): void {
         if ($options['dry-run']) {
             $this->logger->warning('DRY-RUN ENABLED');
         }
@@ -53,7 +53,7 @@ class VoskFileProcessor
         $this->elasticsearchFileIndexer->init();
         $this->logger->info('Elasticsearch file indexer initialization complete.');
 
-        list($shouldIndexFile) = $this->setupFileCollector($finder, $options);
+        list($shouldIndexFileFunc) = $this->setupFileCollector($finder, $options);
 
         $this->dispatchEvent(
             'fileprocessor::starting',
@@ -64,7 +64,7 @@ class VoskFileProcessor
         $futures = [];
         /** @var SplFileInfo $file */
         foreach ($this->files($finder) as $file) {
-            if (!$shouldIndexFile($file)) {
+            if (!$shouldIndexFileFunc($file)) {
                 $this->logger->info('File already indexed, skipping: ' . $file->getRelativePathname());
                 $skippedCnt++;
                 $this->dispatchEvent(
@@ -250,7 +250,7 @@ class VoskFileProcessor
                     $endOfFiles = true;
                 }
                 // Pool has not completed its queue so we cannot be sure there won't be any
-                // new files to requeue yet. Wait a bit and check again.
+                // new files added to requeue yet. Wait a bit and check again.
                 delay(3);
             } else {
                 break;
