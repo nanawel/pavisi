@@ -1,0 +1,5 @@
+/var/*
+.dockerignore
+docker-compose.build.yml
+Dockerfile
+Makefile
