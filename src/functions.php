@@ -76,8 +76,8 @@ if (!function_exists(__NAMESPACE__ . '\\humanTime')) {
     function humanTime(float $time) {
         return sprintf(
             '%02d:%02d',
-            floor($time / 60),
-            floor($time % 60)
+            floor((int) $time / 60),
+            floor((int) $time % 60)
         );
     }
 }

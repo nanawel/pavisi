@@ -61,7 +61,10 @@ class ElasticsearchFileIndexer
                     "[{$e->getCode()}] {$e->getMessage()} Response body: " . json_encode($e->getData())
                 );
             }
-            throw $e;
+            throw new ElasticsearchFileIndexerException(
+                'Could not connect to Elasticsearch. Is it running?',
+                previous: $e
+            );
         }
     }
 

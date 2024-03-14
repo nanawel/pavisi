@@ -22,6 +22,9 @@ class RunCommand extends Command
     public const OPT_INCLUDE = 'include';
     public const OPT_PROGRESS = 'progress';
 
+    protected const TERMINAL_DEFAULT_WIDTH = 120;
+    protected const PROGRESSBAR_FILENAME_LENGTH_MAX_PCT = 75;
+
     public function __construct(
         protected FileFinderBuilder $fileFinderProcessor,
         protected VoskFileProcessor $voskFileProcessor,
@@ -122,7 +125,7 @@ class RunCommand extends Command
                     '%d/%d %s',
                     $ev->payload['files_count'],
                     $ev->payload['files_total'],
-                    $ev->payload['file']->getRelativePathname()
+                    $this->trimFilePathForProgressBar($ev->payload['file']->getRelativePathname())
                 ));
             }
         });
@@ -140,7 +143,7 @@ class RunCommand extends Command
         });
         $this->voskFileProcessor->addListener(function (Event $ev) use ($progressBar) {
             if ($ev->name === 'fileprocessor::file::processed') {
-                $progressBar->setMessage($ev->payload['filepath']);
+                $progressBar->setMessage($this->trimFilePathForProgressBar($ev->payload['filepath']));
                 if ($ev->payload['is_complete'] && $ev->payload['status'] !== 'skipped') {
                     $progressBar->advance();
                 }
@@ -151,5 +154,17 @@ class RunCommand extends Command
                 $progressBar->finish();
             }
         });
+    }
+
+    protected function trimFilePathForProgressBar($filepath) {
+        $termWidth = (getenv('COLUMNS') ?: self::TERMINAL_DEFAULT_WIDTH);
+        $maxLength = min(
+            (int) $termWidth * self::PROGRESSBAR_FILENAME_LENGTH_MAX_PCT / 100, // Percent allowed
+            max($termWidth - 32, 15) // Ensure we leave enaough space for the actual progress bar
+        );
+        if (mb_strlen($filepath) > $maxLength) {
+            return sprintf('...%s', mb_substr($filepath, -($maxLength + 4)));
+        }
+        return $filepath;
     }
 }
