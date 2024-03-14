@@ -72,6 +72,7 @@ class ElasticsearchFileIndexer
         try {
             $mapping = [
                 'properties' => [
+                    'filepath' => ['type' => 'text'],
                     'filesize' => ['type' => 'long'],
                     'filemtime' => [
                         'type' => 'date',
@@ -157,6 +158,7 @@ class ElasticsearchFileIndexer
 
     public function prepareDocument(SplFileInfo $file, Result $vsttResult): array {
         $doc = [
+            'filepath' => $file->getRelativePathname(),
             'filesize' => $file->getSize(),
             'filemtime' => $file->getMTime(),
             'vosk_result' => $vsttResult->voskResult,
@@ -173,6 +175,6 @@ class ElasticsearchFileIndexer
     }
 
     public function getDocumentIdForFile(SplFileInfo $file): string {
-        return $file->getRelativePathname();
+        return uniqid('FILE_', true);
     }
 }
