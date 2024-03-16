@@ -57,7 +57,7 @@ class RunCommand extends Command
                 self::OPT_DRYRUN,
                 'N',
                 InputOption::VALUE_OPTIONAL,
-                'Dry-run (0: disabled, 1: success, 2: failure)',
+                'Dry-run (0: disabled, 1: success (default), 2: failure)',
                 Constants::DRY_RUN_MODE_DISABLED
             )
             ->addOption(
@@ -78,11 +78,19 @@ class RunCommand extends Command
             ->addInclude($input->getOption(self::OPT_INCLUDE))
             ->build();
 
-        if (!in_array($dryRunMode = (int) $input->getOption(self::OPT_DRYRUN), Constants::DRY_RUN_MODES)) {
+        $dryRunMode = $input->getOption(self::OPT_DRYRUN);
+        if ($dryRunMode === null) { // Flag has been used (-N) but without specifying a value
+            $dryRunMode = Constants::DRY_RUN_MODE_SUCCESS;
+        }
+        if (!in_array($dryRunMode = (int) $dryRunMode, Constants::DRY_RUN_MODES)) {
             throw new InvalidOptionException("Invalid dry-run mode: $dryRunMode");
         }
         if (!in_array($progressMode = (int) $input->getOption(self::OPT_PROGRESS), Constants::PROGRESS_MODES)) {
             throw new InvalidOptionException("Invalid dry-run mode: $dryRunMode");
+        }
+
+        if ($dryRunMode) {
+            $output->writeln('<comment>DRY-RUN ENABLED. No file will actually be processed.</comment>');
         }
 
         $output->writeln("Collecting files to process (it may take some time)...");
@@ -103,7 +111,7 @@ class RunCommand extends Command
                     $ev->payload['skipped_cnt']
                 ));
                 if (!empty($ev->payload['exceptions'])) {
-                    $output->writeln(printf(
+                    $output->writeln(sprintf(
                         '<comment>%d error(s) have been encountered.</comment>',
                         count($ev->payload['exceptions'])
                     ));
@@ -152,7 +160,7 @@ class RunCommand extends Command
                 ));
             }
         });
-        $this->voskFileProcessor->addListener(function (Event $ev) use ($progressBar) {
+        $this->voskFileProcessor->addListener(function (Event $ev) use ($progressBar, $output) {
             if ($ev->name === 'filecollector::calculating::done') {
                 $progressBar->setProgress($ev->payload['files_total']);
                 $progressBar->display();
@@ -160,8 +168,13 @@ class RunCommand extends Command
                 $progressBar->setFormat(
                     "%current%/%max% [%bar%] %elapsed:6s%/%estimated:-6s% %memory:6s% %message%"
                 );
-                $progressBar->start($ev->payload['files_count']);
+                $progressBar->clear();
+                $output->writeln(sprintf(
+                    '<info>%d file(s) already indexed.</info>',
+                    $ev->payload['files_already_indexed']
+                ));
                 $progressBar->display();
+                $progressBar->start($ev->payload['files_count']);
             }
         });
         $this->voskFileProcessor->addListener(function (Event $ev) use ($progressBar) {
@@ -175,6 +188,7 @@ class RunCommand extends Command
         $this->voskFileProcessor->addListener(function (Event $ev) use ($progressBar) {
             if ($ev->name === 'fileprocessor::finishing') {
                 $progressBar->finish();
+                $progressBar->clear();
             }
         });
     }

@@ -183,7 +183,7 @@ class VoskFileProcessor
             ['finder' => $finder]
         );
 
-        $shouldIndexFile = fn(SplFileInfo $file) => $this->elasticsearchFileIndexer->shouldIndexFile($file);
+        $shouldIndexFile = fn(SplFileInfo $file) => $this->elasticsearchFileIndexer->isFileAlreadyIndexed($file);
 
         if ($options['progress'] ?? Constants::PROGRESS_MODE_DISABLED) {
             $this->dispatchEvent(
@@ -195,7 +195,7 @@ class VoskFileProcessor
                 $alreadyIndexFiles = [];
                 foreach ($finder as $file) {
                     $filesCount++;
-                    if (!$this->elasticsearchFileIndexer->shouldIndexFile($file)) {
+                    if (!$this->elasticsearchFileIndexer->isFileAlreadyIndexed($file)) {
                         $alreadyIndexFiles[] = $file->getRelativePathname();
                     }
                     $this->dispatchEvent(
@@ -219,6 +219,7 @@ class VoskFileProcessor
                 [
                     'finder' => $finder,
                     'files_total' => $filesCount,
+                    'files_already_indexed' => count($alreadyIndexFiles ?? []),
                     'files_count' => isset($alreadyIndexFiles)
                         ? $filesCount - count($alreadyIndexFiles)
                         : $filesCount

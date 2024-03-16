@@ -12,3 +12,4 @@
 .idea
 *.bkp
 *.log
+/config/app/*.local.yaml

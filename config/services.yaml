@@ -5,7 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 
 imports:
-    - { resource: 'app/config.yaml', ignore_errors: 'not_found' }
+    - { resource: 'app/config.yaml' }
+    - { resource: 'app/config.local.yaml', ignore_errors: 'not_found' }
 
 parameters:
 
@@ -31,6 +32,7 @@ services:
             $esIndex: '%app.elasticsearch.index_name%'
             $esClient: '@Webgriffe\AmpElasticsearch\Client'
             $esSkipMappingUpdate: '%app.elasticsearch.skip_mapping_update%'
+            $indexRawVoskResult: '%app.elasticsearch.index_raw_vosk_result%'
 
     App\Service\FileFinderBuilder:
         arguments:

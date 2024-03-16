@@ -22,6 +22,7 @@ class ElasticsearchFileIndexer
         protected readonly Client $esClient,
         protected string $esIndex,
         protected bool $esSkipMappingUpdate,
+        protected bool $indexRawVoskResult,
     ) {
         $this->logger = $elasticsearchLogger;
     }
@@ -115,19 +116,31 @@ class ElasticsearchFileIndexer
         $this->esClient->deleteIndex($this->esIndex)->await();
     }
 
-    public function shouldIndexFile(SplFileInfo $file): bool {
+    public function isFileAlreadyIndexed(SplFileInfo $file): bool {
         $this->assertInit();
-        //return !$this->esClient->existsDocument($this->esIndex, $this->getDocumentIdForFile($file))->await();
-        $response = $this->esClient->search([
-            'bool' => [
-                'must' => [
-                    ['term' => ['filepath' => ['value' => $file->getRelativePathname()]]],
-                    ['term' => ['filesize' => ['value' => $file->getSize()]]]
+        return !$this->esClient->existsDocument($this->esIndex, $this->getDocumentIdForFile($file))->await();
+        /*
+        $response = $this->esClient
+            ->search([
+                'query' => [
+                    'bool' => [
+                        'must' => [
+                            ['term' => ['filepath' => ['value' => $file->getRelativePathname()]]],
+                            ['term' => ['filesize' => ['value' => $file->getSize()]]]
+                        ]
+                    ]
                 ]
-            ]
-        ])->await();
-
+            ])
+            ->catch(function(\Throwable $e) {
+                $this->logger->critical('Query failed! ' . $e->getMessage());
+                if (method_exists($e, 'getData')) {
+                    $this->logger->critical(json_encode($e->getData()));
+                }
+                throw new ElasticsearchFileIndexerException('Query failed!', previous: $e);
+            })
+            ->await();
         return !$response['hits']['hits'];
+        */
     }
 
     public function indexFile(SplFileInfo $file, Result $vsttResult): Future {
@@ -173,7 +186,6 @@ class ElasticsearchFileIndexer
             'filepath' => $file->getRelativePathname(),
             'filesize' => $file->getSize(),
             'filemtime' => $file->getMTime(),
-            //'vosk_result' => $vsttResult->voskResult,
             'text' => implode("\n", array_reduce($vsttResult->voskResult, function ($carry, $item) {
                 return isset($item['text'])
                     ? array_merge($carry, [$item['text']])
@@ -183,6 +195,9 @@ class ElasticsearchFileIndexer
             'vstt_date' => $vsttResult->datetime->format(\DateTime::RFC3339),
             'doc_version' => Constants::ES_DOC_VERSION
         ];
+        if ($this->indexRawVoskResult) {
+            $doc['vosk_result'] = $vsttResult->voskResult;
+        }
 
         return $doc;
     }

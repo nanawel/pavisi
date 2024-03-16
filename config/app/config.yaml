@@ -1,7 +1,10 @@
+# Default values only
+# Use config.local.yaml to override
 parameters:
   app.elasticsearch.url: 'http://localhost:9200/'
   app.elasticsearch.index_name: 'pavisi'
   app.elasticsearch.skip_mapping_update: false
+  app.elasticsearch.index_raw_vosk_result: false
   app.ffmpeg.path: ffmpeg
   app.filePatterns:
     - '*.avi'
@@ -10,12 +13,12 @@ parameters:
     - '*.mkv'
     - '*.rm'
   app.vosk.instances:
-    my_kaldivosk_server1:
-      websocket_url: ws://localhost:2700/
-      websocket_tcp_timeout: 1
-      websocket_tls_timeout: 1
-      websocket_retry: 0
-      workers: 2
+#    my_kaldivosk_server1:
+#      websocket_url: ws://localhost:2700/
+#      websocket_tcp_timeout: 1
+#      websocket_tls_timeout: 1
+#      websocket_retry: 0
+#      workers: 2
 #    my_kaldivosk_server2:
 #      websocket_url: ws://someotherhost:2700/
 #      workers: 4
