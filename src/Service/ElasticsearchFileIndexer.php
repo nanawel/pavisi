@@ -144,7 +144,7 @@ class ElasticsearchFileIndexer
 
     public function isFileAlreadyIndexed(SplFileInfo $file): bool {
         $this->assertInit();
-        return !$this->esClient->existsDocument($this->esIndex, $this->getDocumentIdForFile($file))->await();
+        return $this->esClient->existsDocument($this->esIndex, $this->getDocumentIdForFile($file))->await();
         /*
         $response = $this->esClient
             ->search([
