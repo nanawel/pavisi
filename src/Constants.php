@@ -24,4 +24,6 @@ interface Constants
     public const WEBSOCKET_TCP_CONNECT_TIMEOUT = 3;
     public const WEBSOCKET_TLS_CONNECT_TIMEOUT = 3;
     public const WEBSOCKET_CONNECT_RETRY = 0;
+
+    public const ES_DOC_VERSION = 3;
 }

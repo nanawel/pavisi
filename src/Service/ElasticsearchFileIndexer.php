@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use Amp\Future;
+use App\Constants;
 use App\Exception\ElasticsearchFileIndexerException;
 use App\Task\VideoSpeechToText\Result;
 use Psr\Log\LoggerInterface;
@@ -72,7 +73,7 @@ class ElasticsearchFileIndexer
         try {
             $mapping = [
                 'properties' => [
-                    'filepath' => ['type' => 'text'],
+                    'filepath' => ['type' => 'keyword'],
                     'filesize' => ['type' => 'long'],
                     'filemtime' => [
                         'type' => 'date',
@@ -96,9 +97,10 @@ class ElasticsearchFileIndexer
                     'text' => ['type' => 'text'],
                     'vstt_worker_id' => ['type' => 'keyword'],
                     'vstt_date' => ['type' => 'date'],
+                    'doc_version' => ['type' => 'long'],
                 ]
             ];
-            $this->esClient->updateMapping($mapping, $this->esIndex,)->await();
+            $this->esClient->updateMapping($mapping, $this->esIndex)->await();
         } catch (\Throwable $e) {
             $this->logger->critical('Could not set/update mapping in Elasticsearch!', ['exception' => $e]);
             if ($e instanceof Error) {
@@ -115,7 +117,17 @@ class ElasticsearchFileIndexer
 
     public function shouldIndexFile(SplFileInfo $file): bool {
         $this->assertInit();
-        return !$this->esClient->existsDocument($this->esIndex, $this->getDocumentIdForFile($file))->await();
+        //return !$this->esClient->existsDocument($this->esIndex, $this->getDocumentIdForFile($file))->await();
+        $response = $this->esClient->search([
+            'bool' => [
+                'must' => [
+                    ['term' => ['filepath' => ['value' => $file->getRelativePathname()]]],
+                    ['term' => ['filesize' => ['value' => $file->getSize()]]]
+                ]
+            ]
+        ])->await();
+
+        return !$response['hits']['hits'];
     }
 
     public function indexFile(SplFileInfo $file, Result $vsttResult): Future {
@@ -161,7 +173,7 @@ class ElasticsearchFileIndexer
             'filepath' => $file->getRelativePathname(),
             'filesize' => $file->getSize(),
             'filemtime' => $file->getMTime(),
-            'vosk_result' => $vsttResult->voskResult,
+            //'vosk_result' => $vsttResult->voskResult,
             'text' => implode("\n", array_reduce($vsttResult->voskResult, function ($carry, $item) {
                 return isset($item['text'])
                     ? array_merge($carry, [$item['text']])
@@ -169,12 +181,13 @@ class ElasticsearchFileIndexer
             }, [])),
             'vstt_worker_id' => $vsttResult->workerId,
             'vstt_date' => $vsttResult->datetime->format(\DateTime::RFC3339),
+            'doc_version' => Constants::ES_DOC_VERSION
         ];
 
         return $doc;
     }
 
     public function getDocumentIdForFile(SplFileInfo $file): string {
-        return uniqid('FILE_', true);
+        return sha1($file->getRelativePathname() . '|' . $file->getSize());
     }
 }
