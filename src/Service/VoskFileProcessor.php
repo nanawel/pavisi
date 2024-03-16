@@ -116,7 +116,6 @@ class VoskFileProcessor
                         $message = $e->getOriginalMessage();
                         // The remote Vosk server was not available so requeue file to try another one
                         if ($e->getOriginalClassName() === VoskServerUnavailableException::class) {
-                            $this->logger->notice("☝️ {$file->getRelativePathname()} can be retried, requeueing.");
                             $retryFile = $this->retry($file, false);
                         }
                         // Communication error between the script and Vosk server, it might be because of
@@ -268,7 +267,7 @@ class VoskFileProcessor
     }
 
     public function retry(SplFileInfo $file, bool $incrementRetry = true): bool {
-        if ($this->canRetry($file)) {
+        if (!$this->canRetry($file)) {
             return false;
         }
         $this->requeuedFiles->enqueue($file);
