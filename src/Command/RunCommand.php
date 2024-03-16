@@ -185,10 +185,11 @@ class RunCommand extends Command
                 }
             }
         });
-        $this->voskFileProcessor->addListener(function (Event $ev) use ($progressBar) {
+        $this->voskFileProcessor->addListener(function (Event $ev) use ($progressBar, $output) {
             if ($ev->name === 'fileprocessor::finishing') {
                 $progressBar->finish();
                 $progressBar->clear();
+                $output->writeln('');
             }
         });
     }
@@ -196,7 +197,7 @@ class RunCommand extends Command
     protected function trimFilePathForProgressBar($filepath) {
         $termWidth = (getenv('COLUMNS') ?: self::TERMINAL_DEFAULT_WIDTH);
         $maxLength = min(
-            (int) $termWidth * self::PROGRESSBAR_FILENAME_LENGTH_MAX_PCT / 100, // Percent allowed
+            (int) ($termWidth * self::PROGRESSBAR_FILENAME_LENGTH_MAX_PCT / 100), // Percent allowed
             max($termWidth - 32, 15) // Ensure we leave enough space for the actual progress bar
         );
         if (mb_strlen($filepath) > $maxLength) {

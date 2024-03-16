@@ -972,16 +972,16 @@
         },
         {
             "name": "amphp/sync",
-            "version": "v2.1.0",
+            "version": "v2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/sync.git",
-                "reference": "50ddc7392cc8034b3e4798cef3cc90d3f4c0441c"
+                "reference": "375ef5b54a0d12c38e12728dde05a55e30f2fbec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/sync/zipball/50ddc7392cc8034b3e4798cef3cc90d3f4c0441c",
-                "reference": "50ddc7392cc8034b3e4798cef3cc90d3f4c0441c",
+                "url": "https://api.github.com/repos/amphp/sync/zipball/375ef5b54a0d12c38e12728dde05a55e30f2fbec",
+                "reference": "375ef5b54a0d12c38e12728dde05a55e30f2fbec",
                 "shasum": ""
             },
             "require": {
@@ -995,7 +995,7 @@
                 "amphp/php-cs-fixer-config": "^2",
                 "amphp/phpunit-util": "^3",
                 "phpunit/phpunit": "^9",
-                "psalm/phar": "^5.4"
+                "psalm/phar": "5.23"
             },
             "type": "library",
             "autoload": {
@@ -1035,7 +1035,7 @@
             ],
             "support": {
                 "issues": "https://github.com/amphp/sync/issues",
-                "source": "https://github.com/amphp/sync/tree/v2.1.0"
+                "source": "https://github.com/amphp/sync/tree/v2.2.0"
             },
             "funding": [
                 {
@@ -1043,7 +1043,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-08-19T13:53:40+00:00"
+            "time": "2024-03-12T01:00:01+00:00"
         },
         {
             "name": "amphp/websocket",
@@ -4459,12 +4459,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nanawel/amp-elasticsearch.git",
-                "reference": "243c8d594325cc9dd0707d03f1ff6803fba47313"
+                "reference": "43c17f7a4d758197adf91759d9f13b109a097f97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nanawel/amp-elasticsearch/zipball/243c8d594325cc9dd0707d03f1ff6803fba47313",
-                "reference": "243c8d594325cc9dd0707d03f1ff6803fba47313",
+                "url": "https://api.github.com/repos/nanawel/amp-elasticsearch/zipball/43c17f7a4d758197adf91759d9f13b109a097f97",
+                "reference": "43c17f7a4d758197adf91759d9f13b109a097f97",
                 "shasum": ""
             },
             "require": {
@@ -4497,7 +4497,7 @@
             "support": {
                 "source": "https://github.com/nanawel/amp-elasticsearch/tree/master"
             },
-            "time": "2024-02-04T09:39:18+00:00"
+            "time": "2024-03-16T15:48:35+00:00"
         }
     ],
     "packages-dev": [],

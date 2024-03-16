@@ -281,8 +281,12 @@ class VoskFileProcessor
     public function process(SplFileInfo $file, array $options): Future {
         $task = $this->videoSpeechToTextTaskFactory->create($file->getRealPath(), $options);
         $future = $this->workerPool->submit($task)->getFuture()
-            ->map(function ($vsttResult) use ($file) {
-                $this->elasticsearchFileIndexer->indexFile($file, $vsttResult)->await();
+            ->map(function ($vsttResult) use ($file, $options) {
+                if ($options['dry-run']) {
+                    $this->logger->notice('Dry-run enabled, skipping file indexing.');
+                } else {
+                    $this->elasticsearchFileIndexer->indexFile($file, $vsttResult)->await();
+                }
                 return $vsttResult;
             })
             ->ignore()

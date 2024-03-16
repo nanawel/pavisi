@@ -112,8 +112,34 @@ class ElasticsearchFileIndexer
             throw $e;
         }
     }
+
     public function clearIndex(): void {
         $this->esClient->deleteIndex($this->esIndex)->await();
+    }
+
+    public function deleteEmptyDocs(): void {
+        $this->esClient
+            ->deleteByQuery([
+                'query' => [
+                    'bool' => [
+                        'must' => [
+                            [
+                                'exists' => [
+                                    'field' => 'text'
+                                ]
+                            ]
+                        ],
+                        'must_not' => [
+                            [
+                                'wildcard' => [
+                                    'text' => '*'
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ], $this->esIndex)
+            ->await();
     }
 
     public function isFileAlreadyIndexed(SplFileInfo $file): bool {
