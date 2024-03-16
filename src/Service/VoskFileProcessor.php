@@ -283,7 +283,7 @@ class VoskFileProcessor
         $future = $this->workerPool->submit($task)->getFuture()
             ->map(function ($vsttResult) use ($file, $options) {
                 if ($options['dry-run']) {
-                    $this->logger->notice('Dry-run enabled, skipping file indexing.');
+                    $this->logger->notice('Dry-run enabled, skip indexing file: ' . $file->getRelativePathname());
                 } else {
                     $this->elasticsearchFileIndexer->indexFile($file, $vsttResult)->await();
                 }
