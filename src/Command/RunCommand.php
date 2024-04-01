@@ -89,6 +89,8 @@ class RunCommand extends Command
             throw new InvalidOptionException("Invalid dry-run mode: $dryRunMode");
         }
 
+        $output->writeln("Run started on " . date('c'));
+
         if ($dryRunMode) {
             $output->writeln('<comment>DRY-RUN ENABLED. No file will actually be processed.</comment>');
         }
@@ -122,15 +124,18 @@ class RunCommand extends Command
             }
         });
 
-        $this->voskFileProcessor->run(
-            $finder,
-            [
-                'dry-run' => $dryRunMode,
-                'progress' => $progressMode
-            ]
-        );
-
-        return Command::SUCCESS;
+        try {
+            $this->voskFileProcessor->run(
+                $finder,
+                [
+                    'dry-run' => $dryRunMode,
+                    'progress' => $progressMode
+                ]
+            );
+            return Command::SUCCESS;
+        } finally {
+            $output->writeln("Run completed on " . date('c'));
+        }
     }
 
     protected function setupProgressBar(OutputInterface $output): void {
@@ -198,7 +203,7 @@ class RunCommand extends Command
         $termWidth = (getenv('COLUMNS') ?: self::TERMINAL_DEFAULT_WIDTH);
         $maxLength = min(
             (int) ($termWidth * self::PROGRESSBAR_FILENAME_LENGTH_MAX_PCT / 100), // Percent allowed
-            max($termWidth - 32, 15) // Ensure we leave enough space for the actual progress bar
+            max($termWidth - 32, 28) // Ensure we leave enough space for the actual progress bar
         );
         if (mb_strlen($filepath) > $maxLength) {
             return sprintf('...%s', mb_substr($filepath, -($maxLength + 4)));
